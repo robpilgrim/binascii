@@ -3,7 +3,7 @@
 
 # HELP PAGE
 ```
-cb: turns a string into a binary representation
-bc: converts a binary number into a string
---help | -h: shows this page
+-c: turns a string into a binary representation
+-b: converts a binary number into a string
+-h: shows this page
 ```
