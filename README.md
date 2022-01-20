@@ -1,5 +1,5 @@
 # HOW TO:
-`to compile the app simply type "make"`
+`to compile it simply type "make"`
 
 # HELP PAGE
 ```
