@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <err.h>
 #include <string.h>
-
+#include <unistd.h>
 
 void bin_to_char(char* string) {
-    int len=0;
-    for(int i=0; i<strlen(string); i++) {
+    int len = 0;
+    for(int i = 0; i < strlen(string); i++) {
         if(string[0] == '1') {
             if(i%6==0) { 
                 int nstring = strtol(&string[len], NULL, 2);
@@ -43,65 +43,52 @@ void char_to_bin(char* string) {
 
 }
 
-int main(int argc, char**argv) {
+int main(int argc, char **argv) {
 
     FILE* fp;
 
-    if(argv[1]==NULL) errx(1, "no operation provided");
-    else if(strcmp(argv[1],"bc")==0) {
+    int flag=0, file=0, opt;
+    if(argc - optind < 1) errx(1, "no operation provided");
+    while((opt = getopt(argc, argv, "cbhf"))!=-1) {
+        switch(opt) {
+            case 'c':
+                flag=1;
+                break;
+            case 'b':
+                flag=2;
+                break;
+            case 'f':
+                file=1;
+                break;
+            case 'h':
+                printf("-c: turns a string into a binary representation\n");
+                printf("-b: converts a binary number into a string\n");
+                printf("-h: shows this page\n"); exit(0);
 
-        if((fp=fopen(argv[2], "r"))==NULL) {
-
-            if(argv[2]==NULL) errx(1, "no file/input provided");
-            bin_to_char(argv[2]);
-            printf("\n");
-            
-
-        }
-
-        else {
-            if(argv[2]==NULL) errx(1, "no file/input provided");
-            fseek(fp, 0L, SEEK_END);
-            size_t fsz = ftell(fp);
-            rewind(fp);
-
-            char* buffer = malloc(fsz);
-            fread(buffer, 1, fsz, fp);
-
-            bin_to_char(buffer);
-            printf("\n");
+            default: exit(1);
         }
     }
 
-    else if(strcmp(argv[1],"cb")==0) {
-        if((fp=fopen(argv[2], "r"))==NULL) {
+    if(file) {
+        fp=fopen(argv[optind], "r");
+        if(!fp) errx(1, "no file provided");
 
-            if(argv[2]==NULL) errx(1, "no file/input provided");
-            char_to_bin(argv[2]);
-            printf("\n");
+        fseek(fp, 0L, SEEK_END);
+        size_t fsz = ftell(fp);
+        rewind(fp);
 
-        }
+        char* buffer = malloc(fsz);
+        fread(buffer, 1, fsz, fp);
 
-        else {
-            if(argv[2]==NULL) errx(1, "no file/input provided");
-            fseek(fp, 0L, SEEK_END);
-            size_t fsz = ftell(fp);
-            rewind(fp);
-
-            char* buffer = malloc(fsz);
-            fread(buffer, 1, fsz, fp);
-
-            char_to_bin(buffer);
-            printf("\n");
-
-        }
+        if(flag == 1) char_to_bin(buffer);
+        else if(flag == 2) bin_to_char(buffer);
+        printf("\n");
     }
+    else if(argv[optind] == NULL) errx(1, "no file/input provided");
 
-    else if(strcmp(argv[1],"--help")==0 || (strcmp(argv[1], "-h")==0)) {
-        printf("cb: turns a string into a binary representation\n");
-        printf("bc: converts a binary number into a string\n");
-        printf("--help | -h: shows this page\n");
+    if(!file) {
+        if(flag == 1) char_to_bin(argv[optind]);
+        else if(flag == 2) bin_to_char(argv[optind]);
+        printf("\n");
     }
-
-
 }
